@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+use 5.10.0;
+use utf8;
+use strict;
+use warnings;
+use open qw( :utf8 :std );
+use Getopt::Long qw( GetOptions );
+
+my $mode = "html";
+my $res  = GetOptions(
+    "mode=s" => \$mode,
+);
+
+my $method = "run_$mode";
+main->$method;
+
+exit;
+
+sub run_html {
+    @_ = @ARGV;
+    my $arg = shift;
+    $arg =~ s{\A [#] }{}msx;
+    my @nums;
+
+    while ( length $arg ) {
+        last
+            unless $arg =~ m{\A ([\dA-Fa-f]{2}) }msx;
+        push @nums, $1;
+        substr( $arg, 0, 2 ) = q{};
+    }
+
+    say join ",", map { eval "0x$_" } @nums;
+}
+

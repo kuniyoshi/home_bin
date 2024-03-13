@@ -1,0 +1,34 @@
+#!/bin/bash
+timer_file="/tmp/$(basename $0).personal"
+minutes="$1"
+interval_seconds=10
+group_id=timer.personal
+
+seconds=$(perl -e "print int( $minutes * 60 )")
+
+sleep "$seconds" \
+    && touch $timer_file
+
+started_at=$(date +%s)
+
+while [ -f $timer_file ]
+do
+    elapsed=$(($(date +%s) - started_at))
+
+#    osascript -e "display notification \"DONE TIMER\" with title \"$timer\""
+    terminal-notifier -remove "$group_id"
+
+    terminal-notifier -title "DONE TIMER" \
+        -message "$timer" \
+        -group "$group_id"
+
+    for x in $(seq "$interval_seconds")
+    do
+        if [ -f "$timer_file" ]
+        then
+            sleep 1
+        fi
+    done
+done
+
+terminal-notifier -remove "$group_id"

@@ -1,0 +1,8 @@
+#!/bin/sh
+prefix=$(basename $0)
+from=cp932
+target_file="$1"
+temporary_dir=/tmp
+cp "$target_file" "/tmp/$prefix.$$"
+iconv -f "$from" "$target_file" >"/tmp/$prefix.$$"
+cat "/tmp/$prefix.$$" >"$target_file"

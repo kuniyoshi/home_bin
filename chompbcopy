@@ -1,0 +1,2 @@
+#!/bin/sh
+pbcopy && pbpaste | perl -pe 'chomp' | pbcopy

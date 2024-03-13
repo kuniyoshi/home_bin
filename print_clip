@@ -1,0 +1,63 @@
+#!/usr/bin/perl
+
+use utf8;
+use open ":utf8";
+use open ":std";
+use Modern::Perl;
+use Time::HiRes qw( usleep );
+use Readonly;
+
+#
+# Use xsel for Linux, and use pbpaste for Mac.
+#
+
+my $interval      = 300_000;  # micro seconds
+my $content       = "";
+my $end_message   = "If want to finish, copy this message to clipboard.";
+
+say { *STDERR } "#" x 80;
+say { *STDERR } $end_message;
+say { *STDERR } "#" x 80;
+
+clear_clipboard( );
+
+SAY_CLIPBOARD_TO_STDOUT:
+while ( 1 ) {
+    usleep( $interval );
+
+    my $current = get_from_clipboard( );
+
+    last SAY_CLIPBOARD_TO_STDOUT
+        if $current eq $end_message;
+
+    if ( $current ne $content ) {
+        $content = $current;
+        say $current;
+    }
+}
+
+
+exit;
+
+sub get_from_clipboard {
+    open my $FH, "pbpaste|"
+        or die $!;
+    my @lines = <$FH>;
+    close $FH
+        or die $!;
+    utf8::decode( $_ )
+        foreach @lines;
+
+    return join "", @lines;
+}
+
+sub clear_clipboard {
+    open my $FH, "|pbcopy"
+        or die $!;
+    print { $FH } q{};
+    close $FH
+        or die $!;
+
+    return;
+}
+
